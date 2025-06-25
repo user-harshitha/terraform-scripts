@@ -1,0 +1,25 @@
+ami_id       = "ami-04d143d89e43ce7fb"  # golden-ami
+existing_server_instance_id = "i-0b889796e57564afd"
+vpc_id = "vpc-0f6424f35dc01cb6c"
+subnet_id     = "subnet-09ffb189d6f69530a"
+key_pair      = "ansible"
+env = "demo"
+availability_zone = "ap-south-1a"
+perdix_url = "demo-arohan.perdix.co.in"
+instance_tags = {
+  Name = "AROHAN DEMO [NEW]"
+  ServerCategory = "Client-UAT"
+  BillableParty = "demo"
+  DNS_Name = "demo-arohan.mmb.perdix.co"
+  }
+ebs_volume_tags = {
+  Name = "AROHAN DEMO [NEW]"
+  BillableParty = "demo"
+  }
+# Base server volume IDs (replace with your actual volume IDs)
+base_volume_id_app      = "vol-0d798d43d003f5964"  # /app volume
+base_volume_id_appdata  = "vol-0625cd092b7f74904"  # /appdata volume
+base_volume_id_database = "vol-04c03608fb99184c9"  # /database volume
+
+route53_zone_id        = "Z14HUFX62W338H"  # Zone ID for abc.in
+alb_https_listener_arn = "arn:aws:elasticloadbalancing:ap-south-1:203862109330:listener/app/DEV-MMB-ELB/617d6a7924757988/3c6ee87c6cfc2be5"
