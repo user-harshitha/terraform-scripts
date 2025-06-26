@@ -218,7 +218,21 @@ resource "null_resource" "update_r53_record" {
   depends_on = [aws_instance.server]
 
   provisioner "local-exec" {
-    command = "aws route53 change-resource-record-sets --hosted-zone-id ${var.route53_zone_id} --change-batch '{\"Changes\":[{\"Action\":\"UPSERT\",\"ResourceRecordSet\":{\"Name\":\"demo-arohan.perdix.co\",\"Type\":\"A\",\"TTL\":300,\"ResourceRecords\":[{\"Value\":\"${aws_instance.server.private_ip}\"}]}}]}'"
+    command = <<EOT
+      aws route53 change-resource-record-sets \
+        --hosted-zone-id ${var.route53_zone_id} \
+        --change-batch '{
+          "Changes": [{
+            "Action": "UPSERT",
+            "ResourceRecordSet": {
+              "Name": "${var.instance_tags.DNS_Name}",
+              "Type": "A",
+              "TTL": 300,
+              "ResourceRecords": [{"Value": "${aws_instance.server.private_ip}"}]
+            }
+          }]
+        }'
+    EOT
   }
 }
 
