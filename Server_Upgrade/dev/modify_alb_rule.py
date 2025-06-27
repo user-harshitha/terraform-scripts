@@ -14,7 +14,7 @@ listener_arn = args.listener_arn
 host_header = args.host_header
 new_target_group_arn = args.target_group_arn
 
-client = boto3.client("elbv2")
+client = boto3.client("elbv2", region_name="ap-south-1")
 
 # Step 1: Fetch all rules
 try:
