@@ -268,27 +268,56 @@ resource "aws_lb_target_group_attachment" "target_group" {
 }
 # ------------------------- OUTPUTS.TF -------------------------
 
-output "instance_id" {
-  description = "ID of the newly created EC2 instance"
-  value       = aws_instance.server.id
+output "instance_details" {
+  description = "Detailed information about the EC2 instance"
+  value = {
+    id               = aws_instance.server.id
+    ami              = aws_instance.server.ami
+    instance_type    = aws_instance.server.instance_type
+    private_ip       = aws_instance.server.private_ip
+    public_ip        = aws_instance.server.public_ip
+    key_name         = aws_instance.server.key_name
+    availability_zone = aws_instance.server.availability_zone
+    subnet_id        = aws_instance.server.subnet_id
+    vpc_security_group_ids = aws_instance.server.vpc_security_group_ids
+    tags             = aws_instance.server.tags
+  }
 }
 
-output "instance_private_ip" {
-  description = "Private IP of the instance"
-  value       = aws_instance.server.private_ip
+output "attached_volumes_details" {
+  description = "Details of attached EBS volumes"
+  value = {
+    app_volume = {
+      id     = aws_ebs_volume.app.id
+      size   = aws_ebs_volume.app.size
+      type   = aws_ebs_volume.app.type
+      device = aws_volume_attachment.app.device_name
+    }
+    appdata_volume = {
+      id     = aws_ebs_volume.appdata.id
+      size   = aws_ebs_volume.appdata.size
+      type   = aws_ebs_volume.appdata.type
+      device = aws_volume_attachment.appdata.device_name
+    }
+    database_volume = {
+      id     = aws_ebs_volume.database.id
+      size   = aws_ebs_volume.database.size
+      type   = aws_ebs_volume.database.type
+      device = aws_volume_attachment.database.device_name
+    }
+  }
 }
 
-output "attached_volumes" {
-  description = "IDs of attached EBS volumes"
-  value = [
-    aws_ebs_volume.app.id,
-    aws_ebs_volume.appdata.id,
-    aws_ebs_volume.database.id
-  ]
+output "target_group_info" {
+  description = "Target group info"
+  value = {
+    arn     = aws_lb_target_group.target_group.arn
+    name    = aws_lb_target_group.target_group.name
+    port    = aws_lb_target_group.target_group.port
+    vpc_id  = aws_lb_target_group.target_group.vpc_id
+    target_type = aws_lb_target_group.target_group.target_type
+  }
 }
 
-output "target_group_arn" {
-  value = aws_lb_target_group.target_group.arn
-}
 
 
