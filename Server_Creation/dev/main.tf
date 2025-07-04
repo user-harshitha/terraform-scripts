@@ -241,7 +241,7 @@ resource "aws_lb_target_group" "target_group" {
   }
 
   tags = {
-    Name = var.instance_tags.Name
+    Name = replace(var.instance_tags.Name, "/[^\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]/", "")
   }
 }
 
