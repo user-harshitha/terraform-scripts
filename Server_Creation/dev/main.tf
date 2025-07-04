@@ -241,7 +241,7 @@ resource "aws_lb_target_group" "target_group" {
   }
 
   tags = {
-    Name = var.instance_tags.name
+    Name = var.instance_tags.Name
   }
 }
 
