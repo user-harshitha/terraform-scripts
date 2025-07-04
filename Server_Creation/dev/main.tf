@@ -30,11 +30,6 @@ variable "env" {
   type = string
 }
 
-variable "client" {
-  description = "Client"
-  type = string
-}
-
 variable "route53_zone_id" {
   description = "Route53 Zone ID"
   type = string
@@ -73,15 +68,11 @@ variable "instance_tags" {
     type = map(string)
 }
 
-variable "existing_server_instance_id" {
+variable "base_server_instance_id" {
   type = string
 }
 
-variable "deregister_old_targets" {
-  description = "Whether to deregister old targets"
-  type        = bool
-  default     = false
-}
+
 
 # ------------------------- MAIN.TF (OPTIMIZED) -------------------------
 
@@ -93,7 +84,7 @@ provider "aws" {
 
 # Add these data sources to fetch existing instance details
 data "aws_instance" "existing" {
-  instance_id = var.existing_server_instance_id
+  instance_id = var.base_server_instance_id
 }
 
 # Create snapshots of base server volumes
@@ -219,29 +210,20 @@ resource "time_sleep" "wait_30_seconds_after_database" {
   create_duration = "30s"
 }
 
-resource "null_resource" "update_r53_record" {
-  depends_on = [aws_instance.server]
-
-  provisioner "local-exec" {
-    command = <<EOT
-      aws route53 change-resource-record-sets \
-        --hosted-zone-id ${var.route53_zone_id} \
-        --change-batch '{
-          "Changes": [{
-            "Action": "UPSERT",
-            "ResourceRecordSet": {
-              "Name": "${var.instance_tags.DNS_Name}",
-              "Type": "A",
-              "TTL": 300,
-              "ResourceRecords": [{"Value": "${aws_instance.server.private_ip}"}]
-            }
-          }]
-        }'
-    EOT
-  }
+# Create Route53 A record for the instance
+resource "aws_route53_record" "instance_dns" {
+  zone_id = var.route53_zone_id  # Zone ID for "abc.in"
+  name    = var.hostname       # FQDN for the instance
+  type    = "A"
+  ttl     = 600
+  records = [aws_instance.server.private_ip]  # Or public_ip if internet-facing
 }
 
-# 3. Create new target group
+data "aws_lb_target_group" "selected" {
+  name = var.target_group_name
+}
+
+# Create target group
 resource "aws_lb_target_group" "target_group" {
   name        = "${var.env}-${var.client}-mmb-80tg"
   port        = 80
@@ -256,21 +238,37 @@ resource "aws_lb_target_group" "target_group" {
     unhealthy_threshold = 2
     timeout             = 5
   }
-  lifecycle {
-    create_before_destroy = true
-  }
 
   tags = {
-    Name = replace(var.instance_tags.Name, "/[^\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]/", "")
+    Name = var.instance_tags.name
   }
 }
 
-# 4. Attach new instance to target group
+
+# Attach instance to target group
 resource "aws_lb_target_group_attachment" "target_group" {
-  target_group_arn = aws_lb_target_group.target_group.arn
+  target_group_arn = data.aws_lb_target_group.selected.arn
   target_id        = aws_instance.server.id
   port             = 80
 }
+
+# Add ALB listener rule (if ALB is in same module)
+resource "aws_lb_listener_rule" "target_group" {
+  listener_arn = var.alb_https_listener_arn  # Pass from ALB module
+  
+  action {
+    type             = "forward"
+    target_group_arn = data.aws_lb_target_group.selected.arn
+  }
+
+  condition {
+    host_header {
+      values = [var.perdix_url]
+    }
+  }
+}
+
+
 # ------------------------- OUTPUTS.TF -------------------------
 
 output "instance_details" {
