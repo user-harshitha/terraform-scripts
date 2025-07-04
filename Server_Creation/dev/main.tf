@@ -218,14 +218,10 @@ resource "time_sleep" "wait_30_seconds_after_database" {
 # Create Route53 A record for the instance
 resource "aws_route53_record" "instance_dns" {
   zone_id = var.route53_zone_id  # Zone ID for "abc.in"
-  name    = var.hostname       # FQDN for the instance
+  name    = var.instance_tags.DNS_Name     # FQDN for the instance
   type    = "A"
   ttl     = 600
   records = [aws_instance.server.private_ip]  # Or public_ip if internet-facing
-}
-
-data "aws_lb_target_group" "selected" {
-  name = var.target_group_name
 }
 
 # Create target group
@@ -249,6 +245,10 @@ resource "aws_lb_target_group" "target_group" {
   }
 }
 
+data "aws_lb_target_group" "selected" {
+  depends_on = [aws_lb_target_group.target_group]
+  name       = aws_lb_target_group.target_group.name
+}
 
 # Attach instance to target group
 resource "aws_lb_target_group_attachment" "target_group" {
