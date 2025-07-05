@@ -145,7 +145,7 @@ if __name__ == "__main__":
     parser.add_argument('--new-hostname', required=True)
     parser.add_argument('--old-url', required=True)
     parser.add_argument('--new-url', required=True)
-    parser.add_arguement('--workspace_dir', required=True)
+    parser.add_argument('--workspace_dir', required=True)
 
     args = parser.parse_args()
 
