@@ -4,22 +4,6 @@ import subprocess
 import re
 import argparse
 
-# -------------------------
-# CONFIGURATION START
-# -------------------------
-
-REPOS = {
-    "jenkins-irf-encore-server/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-encore-server.git",
-    "jenkins-irf-perdix-bi/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-perdix-bi.git",
-    "jenkins-irf-perdix-client/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-perdix-client.git",
-    "jenkins-irf-perdix-server/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-perdix-server.git",
-    "environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/environments.git",
-}
-
-# -------------------------
-# CONFIGURATION END
-# -------------------------
-
 def run_cmd(cmd, cwd=None):
     result = subprocess.run(cmd, shell=True, cwd=cwd, capture_output=True, text=True)
     if result.returncode != 0:
@@ -177,6 +161,22 @@ if __name__ == "__main__":
     OLD_URL = args.old_url
     NEW_URL = args.new_url
     WORKSPACE_DIR = args.workspace_dir
+
+# -------------------------
+# CONFIGURATION START
+# -------------------------
+
+REPOS = {
+    "jenkins-irf-encore-server/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-encore-server.git",
+    "jenkins-irf-perdix-bi/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-perdix-bi.git",
+    "jenkins-irf-perdix-client/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-perdix-client.git",
+    "jenkins-irf-perdix-server/environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/jenkins-irf-perdix-server.git",
+    "environments": f"https://{GITEA_USERNAME}:{GITEA_TOKEN}@vcs.perdix.co:3000/devops/environments.git",
+}
+
+# -------------------------
+# CONFIGURATION END
+# -------------------------
 
 if not os.path.exists(WORKSPACE_DIR):
     os.makedirs(WORKSPACE_DIR)
